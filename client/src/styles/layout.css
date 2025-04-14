@@ -1,0 +1,37 @@
+.dashboard-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    min-height: calc(100vh - 60px); /* Adjust for Navbar height */
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  .dashboard-welcome {
+    flex: 1;
+    font-size: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .chatbot-section {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .page-wrapper.dark {
+    background-color: #121212;
+  }
+  
+  .auth-form-wrapper.dark {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  

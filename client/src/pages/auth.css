@@ -1,0 +1,71 @@
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f8f9fa;
+  }
+  
+  .auth-container.dark {
+    background-color: #121212;
+  }
+  
+  .auth-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .auth-form input {
+    margin-bottom: 1rem;
+  }
+  
+  .auth-form h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .auth-container.dark .auth-form {
+    background-color: #1e1e1e;
+    color: white;
+  }
+  /* src/pages/auth.css */
+.auth-container {
+  background-image: url("/bg.jpg"); /* Place your image as public/bg.jpg */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px;
+}
+
+.blur-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 0;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  z-index: 1;
+}
+
+.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+  

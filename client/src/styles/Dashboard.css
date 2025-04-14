@@ -1,0 +1,38 @@
+/* client/src/styles/dashboard.css */
+
+.dashboard-content {
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  width: 120px;
+}
+
+.chat-wrapper {
+  background-color: var(--bs-light);
+  border-radius: 1rem;
+  padding: 20px;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.dark .chat-wrapper {
+  background-color: #1e1e2f;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255,255,255,0.05);
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
