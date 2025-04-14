@@ -8,7 +8,7 @@ import { setAutoLogout } from "../utils/autoLogout.js";
 import { toast } from "react-toastify";
 import { ThemeContext } from "../context/ThemeContext.jsx";
 import "../styles/dashboard.css";
-import logo from "/logo.svg.png"; // ✅ your logo
+import logo from "/logo.svg.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
