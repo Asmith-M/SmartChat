@@ -20,11 +20,10 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await axios.post('https://smartchat-syem.onrender.com', {
+    const response = await axios.post('https://smartchat-syem.onrender.com/api/auth/login', {
         email,
         password,
       });
-
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
