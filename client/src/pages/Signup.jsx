@@ -3,8 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ThemeContext } from '../context/ThemeContext';
-
-<img src="/logo.svg.png" alt="Logo" />
+import logo from '/logo.svg.png';
  // Import the logo
 
 const Signup = () => {
