@@ -12,7 +12,7 @@ export const signup = async (req, res) => { // Changed exports.signup to export 
   }
 
   try {
-    const { name, email, password } = req.body;
+   const { username, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -24,7 +24,7 @@ export const signup = async (req, res) => { // Changed exports.signup to export 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save user
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
 
     // Generate JWT
@@ -32,7 +32,7 @@ export const signup = async (req, res) => { // Changed exports.signup to export 
       expiresIn: '24h',
     });
 
-    res.status(201).json({ token, user: { id: newUser._id, name, email } });
+    res.status(201).json({ token, user: { id: newUser._id, username, email } });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
