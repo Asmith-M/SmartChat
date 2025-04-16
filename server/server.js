@@ -23,7 +23,7 @@ app.use(authRateLimiter);
 
 // ✅ Core Middlewares
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests only from your frontend origin
+  origin: 'https://smartchat-o9o6sgyis-asmiths-projects-d78bfa96.vercel.app', // Allow requests only from your frontend origin
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Include OPTIONS for preflight
   credentials: true, // If you need to handle cookies or authorization headers
   allowedHeaders: 'Content-Type, Authorization', // Specify allowed headers
