@@ -6,7 +6,7 @@ SmartChat – AI-Powered Conversational Chatbot
 
 ## 🔍 Preview
 
-![SmartChat Preview](./preview.png.png)
+![SmartChat Preview](./Preview.png.png)
 
 
 ✨ Features
