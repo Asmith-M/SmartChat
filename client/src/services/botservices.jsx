@@ -1,7 +1,7 @@
 // botservices.jsx
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/bot'; // Define your API base URL
+const API_BASE_URL = 'https://smartchat-syem.onrender.com'; // Define your API base URL
 
 export const getBotResponse = async (message, mode, sessionId) => {
   try {

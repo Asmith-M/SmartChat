@@ -48,7 +48,7 @@ const Signup = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
+      const res = await axios.post('https://smartchat-syem.onrender.com', formData);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       localStorage.setItem('tokenExpiry', Date.now() + 60 * 60 * 1000);
