@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getBotResponse } from '../services/botservices';
-import '../styles/chatbot.css';
+import '../styles/ChatBot.css';
 import DOMPurify from 'dompurify';
 
 const ChatBot = () => {
