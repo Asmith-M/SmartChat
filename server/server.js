@@ -23,10 +23,10 @@ app.use(authRateLimiter);
 
 // ✅ Core Middlewares
 app.use(cors({
-  origin: 'https://smartchat-seven.vercel.app/', // Allow requests only from your frontend origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // Include OPTIONS for preflight
-  credentials: true, // If you need to handle cookies or authorization headers
-  allowedHeaders: 'Content-Type, Authorization', // Specify allowed headers
+  origin: ['https://smartchat-o9o6sgyis-asmiths-projects-d78bfa96.vercel.app', 'https://smartchat-5nl6nxrjz-asmiths-projects-d78bfa96.vercel.app', 'https://smartchat-seven.vercel.app'], // Add the newest origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  credentials: true,
+  allowedHeaders: 'Content-Type, Authorization',
 }));
 app.use(express.json());
 app.use(morgan('dev')); // Logging
