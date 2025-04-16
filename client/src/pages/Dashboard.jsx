@@ -7,7 +7,7 @@ import ChatBot from "../components/Chatbot.jsx";
 import { setAutoLogout } from "../utils/autoLogout.js";
 import { toast } from "react-toastify";
 import { ThemeContext } from "../context/ThemeContext.jsx";
-import "../styles/DashBoard.css";
+import "../styles/Dashboard.css";
 import logo from "/logo.svg.png";
 
 const Dashboard = () => {
