@@ -4,27 +4,28 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 
+
 // POST /api/auth/signup
-export const signup = async (req, res) => { // Changed exports.signup to export const signup
+export const signup = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    // Check if username already exists
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ msg: 'User already exists' });
+      return res.status(400).json({ message: 'Username already exists' });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save user
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
 
     // Generate JWT
@@ -32,11 +33,12 @@ export const signup = async (req, res) => { // Changed exports.signup to export 
       expiresIn: '24h',
     });
 
-    res.status(201).json({ token, user: { id: newUser._id, name, email } });
+    res.status(201).json({ token, user: { id: newUser._id, username, email } });
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+    res.status(500).json({ message: err.message || 'Internal Server Error' });
   }
 };
+
 
 // POST /api/auth/login
 export const login = async (req, res) => { // Changed exports.login to export const login
