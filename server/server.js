@@ -28,6 +28,14 @@ app.use(cors({
     credentials: true,
     optionsSuccessStatus: 204
 }));
+
+// Add explicit OPTIONS preflight handler for all routes
+app.options('*', cors({
+    origin: 'https://smartchat-seven.vercel.app',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204
+}));
 app.use(express.json());
 app.use(morgan('dev')); // Logging
 

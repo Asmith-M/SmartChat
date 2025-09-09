@@ -14,38 +14,50 @@ export const chatWithBot = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid or empty message' });
     }
 
-    // Construct prompt based on personality
-    let prompt = '';
+    // Construct system message based on personality
+    let systemMessage = '';
     if (personality === 'sassy') {
-      prompt = `You are a sassy, edgy AI assistant. Respond with attitude and slang.\nUser: ${message}`;
+      systemMessage = 'You are a sassy, edgy AI assistant. Respond with attitude and slang.';
     } else if (personality === 'spicy') {
-      prompt = `You are a spicy, bold AI assistant. Add humor and boldness.\nUser: ${message}`;
+      systemMessage = 'You are a spicy, bold AI assistant. Add humor and boldness to your responses.';
     } else {
-      prompt = `You are a helpful, professional AI assistant.\nUser: ${message}`;
+      systemMessage = 'You are a helpful, professional AI assistant.';
     }
 
-    // Call Hugging Face API with consistent model
-    const response = await axios.post(
-      'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
-      {
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 250,
-          temperature: personality === 'sassy' || personality === 'spicy' ? 0.9 : 0.7,
-          top_p: 0.9,
-          do_sample: true
+    // Prepare OpenRouter API request payload
+    const requestBody = {
+      model: "mistralai/mistral-7b-instruct",
+      messages: [
+        {
+          role: "system",
+          content: systemMessage
+        },
+        {
+          role: "user",
+          content: message
         }
-      },
+      ],
+      max_tokens: 250,
+      temperature: personality === 'sassy' || personality === 'spicy' ? 0.9 : 0.7,
+      top_p: 0.9
+    };
+
+    // Call OpenRouter API
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      requestBody,
       {
         headers: {
-          Authorization: `Bearer ${process.env.HUGGING_FACE_API_KEY}`,
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://smartchat-seven.vercel.app',
+          'X-Title': 'SmartChat'
         },
       }
     );
 
-    // Extract generated text
-    let botReply = response.data[0]?.generated_text || "Oops, my circuits are overheating!";
+    // Extract generated text from OpenRouter response
+    let botReply = response.data.choices[0]?.message?.content || "Oops, my circuits are overheating!";
 
     // Clean up response
     botReply = botReply.replace(/^(Assistant:|Bot:|AI:)\s*/i, '');
@@ -53,7 +65,7 @@ export const chatWithBot = async (req, res) => {
     res.json({ success: true, message: botReply });
 
   } catch (error) {
-    console.error('Error talking to Hugging Face:', error.message);
+    console.error('Error talking to OpenRouter:', error.message);
     res.status(500).json({ success: false, error: "I'm having a meltdown. Try again later!" });
   }
 };
