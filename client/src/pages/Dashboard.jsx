@@ -20,14 +20,15 @@ const Dashboard = () => {
   const tokenExpiry = localStorage.getItem("tokenExpiry");
 
   useEffect(() => {
-    if (!token || !tokenExpiry || Date.now() > parseInt(tokenExpiry)) {
+    // Optional auth: only redirect if token exists but is expired
+    if (token && tokenExpiry && Date.now() > parseInt(tokenExpiry)) {
       localStorage.clear();
       navigate("/login");
     }
 
     const interval = setInterval(() => {
       const expiry = localStorage.getItem("tokenExpiry");
-      if (expiry && Date.now() > parseInt(expiry)) {
+      if (token && expiry && Date.now() > parseInt(expiry)) {
         localStorage.clear();
         navigate("/login");
       }

@@ -9,7 +9,7 @@ export const getBotResponse = async (message, mode, sessionId) => {
     const validMode = ['formal', 'sassy'].includes(mode) ? mode : 'formal';
 
     // Call the correct endpoint with proper parameters
-    const response = await axios.post(`${API_BASE_URL}/chat`, {
+    const response = await axios.post(`${API_BASE_URL}/api/bot/chat`, {
       message,
       personality: validMode, // Changed from mode to personality to match backend
       sessionId: sessionId, // Include sessionId in the request

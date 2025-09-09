@@ -1,8 +1,8 @@
-// server/controllers/chatbotController.js
-const axios = require('axios');
-require('dotenv').config(); // Load .env variables
+import axios from 'axios';
+import dotenv from 'dotenv';
+dotenv.config(); // Load .env variables
 
-const chatWithBot = async (req, res) => {
+export const chatWithBot = async (req, res) => {
   const userMessage = req.body.message;
 
   try {
@@ -25,5 +25,3 @@ const chatWithBot = async (req, res) => {
     res.status(500).json({ reply: "I'm having a sarcastic meltdown. Try again later!" });
   }
 };
-
-module.exports = { chatWithBot };

@@ -9,6 +9,8 @@ const ChatBot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [mode, setMode] = useState('formal');
   const [sessionId, setSessionId] = useState(null);
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const chatEndRef = useRef(null);
 
   // Generate session ID only once
@@ -133,8 +135,45 @@ const ChatBot = () => {
     };
   };
 
+  const validateInput = (message) => {
+    const trimmed = message.trim();
+
+    // Check if message is empty
+    if (!trimmed) {
+      return { isValid: false, error: 'Message cannot be empty' };
+    }
+
+    // Check message length (max 1000 characters)
+    if (trimmed.length > 1000) {
+      return { isValid: false, error: 'Message is too long (max 1000 characters)' };
+    }
+
+    // Check for excessive special characters (potential spam)
+    const specialCharCount = (trimmed.match(/[^a-zA-Z0-9\s]/g) || []).length;
+    if (specialCharCount > trimmed.length * 0.5) {
+      return { isValid: false, error: 'Message contains too many special characters' };
+    }
+
+    // Check for repeated characters (potential spam)
+    if (/(.)\1{10,}/.test(trimmed)) {
+      return { isValid: false, error: 'Message contains too many repeated characters' };
+    }
+
+    return { isValid: true, error: null };
+  };
+
   const handleSend = async () => {
-    if (!input.trim()) return;
+    // Validate input before processing
+    const validation = validateInput(input);
+    if (!validation.isValid) {
+      // Show validation error
+      setChatHistory(prev => [...prev, {
+        sender: 'system',
+        text: `❌ ${validation.error}`,
+        type: 'error'
+      }]);
+      return;
+    }
 
     const userMsg = { sender: 'user', text: input };
     setChatHistory(prev => [...prev, userMsg]);
@@ -146,28 +185,49 @@ const ChatBot = () => {
 
     // Check if the message matches any predefined response exactly
     const predefinedResponses = getPredefinedResponses();
-    
+
     // First check for exact matches
     if (predefinedResponses[lowerInput]) {
       botReply = predefinedResponses[lowerInput];
-    } 
+    }
     // Then check for partial matches (like when user types "who made you?" with question mark)
     else {
-      const matchingKey = Object.keys(predefinedResponses).find(key => 
+      const matchingKey = Object.keys(predefinedResponses).find(key =>
         lowerInput.includes(key)
       );
-      
+
       if (matchingKey) {
         botReply = predefinedResponses[matchingKey];
       } else {
-        // If no predefined response matches, call the API
-        try {
-          botReply = await getBotResponse(input, mode, sessionId);
-        } catch (error) {
-          console.error('Error fetching bot response:', error);
-          botReply = mode === 'formal'
-            ? 'I apologize, but I encountered an error processing your request. Please try again.'
-            : 'My brain just short-circuited 💀 Not me failing at the ONE thing I was built for...';
+        // If no predefined response matches, call the API with retry logic
+        let retryAttempts = 0;
+        const maxRetries = 3;
+
+        while (retryAttempts < maxRetries) {
+          try {
+            botReply = await getBotResponse(input, mode, sessionId);
+            setError(null); // Clear any previous errors
+            break; // Success, exit retry loop
+          } catch (error) {
+            console.error(`Error fetching bot response (attempt ${retryAttempts + 1}):`, error);
+            retryAttempts++;
+
+            if (retryAttempts >= maxRetries) {
+              // All retries failed
+              setError({
+                message: 'Failed to get response after multiple attempts',
+                type: 'network',
+                canRetry: true
+              });
+
+              botReply = mode === 'formal'
+                ? 'I apologize, but I encountered an error processing your request. Please try again.'
+                : 'My brain just short-circuited 💀 Not me failing at the ONE thing I was built for...';
+            } else {
+              // Wait before retrying (exponential backoff)
+              await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryAttempts) * 1000));
+            }
+          }
         }
       }
     }
