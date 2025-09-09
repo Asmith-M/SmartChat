@@ -1,6 +1,7 @@
 // client/src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar.jsx';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
@@ -10,12 +11,15 @@ import './assets/main.css';
 const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<ChatBot />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
+      <Navbar />
+      <main>
+        <Routes>
+          <Route path="/" element={<ChatBot />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </main>
     </Router>
   );
 };
