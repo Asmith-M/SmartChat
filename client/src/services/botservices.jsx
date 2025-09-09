@@ -5,8 +5,17 @@ const API_BASE_URL = 'https://smartchat-syem.onrender.com'; // Define your API b
 
 export const getBotResponse = async (message, mode, sessionId) => {
   try {
-    // Ensure mode is valid
-    const validMode = ['formal', 'sassy'].includes(mode) ? mode : 'formal';
+    // Ensure mode is valid - add 'spicy' support
+    const validMode = ['formal', 'sassy', 'spicy'].includes(mode) ? mode : 'formal';
+
+    // Log the exact prompt and mode being sent
+    console.log('Frontend Request Payload:', {
+      message,
+      personality: validMode,
+      sessionId: sessionId,
+      mode: mode,
+      validMode: validMode
+    });
 
     // Call the correct endpoint with proper parameters
     const response = await axios.post(`${API_BASE_URL}/api/bot/chat`, {

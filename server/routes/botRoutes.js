@@ -268,6 +268,14 @@ router.post('/chat', async (req, res) => {
     // Extract message, session ID and bot personality from request body
     const { message, sessionId = generateSessionId(), personality = 'formal' } = req.body;
 
+    // Log received payload
+    console.log('Backend Received Payload:', {
+      message,
+      sessionId,
+      personality,
+      rawBody: req.body
+    });
+
     // Normalize input
     const normalizedMessage = normalizeInput(message);
 
