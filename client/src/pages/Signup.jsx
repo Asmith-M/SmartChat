@@ -55,7 +55,7 @@ const Signup = () => {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       localStorage.setItem('tokenExpiry', Date.now() + 60 * 60 * 1000);
       toast.success('Signup successful!');
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       const msg = err.response?.data?.message || 'Signup failed';
       setError(msg);

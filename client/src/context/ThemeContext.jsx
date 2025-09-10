@@ -1,4 +1,3 @@
-// client/src/context/ThemeContext.jsx
 import React, { createContext, useEffect, useState } from 'react';
 
 export const ThemeContext = createContext();
@@ -9,7 +8,11 @@ export const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    document.body.className = darkMode ? 'bg-dark text-light' : 'bg-light text-dark';
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 

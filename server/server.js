@@ -28,6 +28,7 @@ const corsOptions = {
     optionsSuccessStatus: 204
 };
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // <-- This is the required line that fixes the CORS error.
 
 app.use(express.json());
 app.use(morgan('dev'));
@@ -52,8 +53,8 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
     try {
-        // await mongoose.connect(process.env.MONGO_URI);
-        // console.log('✅ MongoDB connected successfully.');
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('✅ MongoDB connected successfully.');
         app.listen(PORT, () => console.log(`🚀 Server is listening on port ${PORT}`));
     } catch (err) {
         console.error('❌ Server start failed:', err.message);
@@ -64,3 +65,4 @@ const startServer = async () => {
 startServer();
 
 export default app;
+

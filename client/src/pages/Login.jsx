@@ -32,7 +32,7 @@ const Login = () => {
       remember ? localStorage.setItem('remember', 'true') : localStorage.removeItem('remember');
 
       toast.success('Login successful!');
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       const msg = err.response?.data?.message || 'Invalid credentials or server error';
       setError(msg);
