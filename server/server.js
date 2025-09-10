@@ -15,7 +15,7 @@ import { authRateLimiter } from './middleware/ratelimiter.js';
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cspMiddleware);
@@ -52,11 +52,11 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('✅ MongoDB connected successfully.');
+        // await mongoose.connect(process.env.MONGO_URI);
+        // console.log('✅ MongoDB connected successfully.');
         app.listen(PORT, () => console.log(`🚀 Server is listening on port ${PORT}`));
     } catch (err) {
-        console.error('❌ MongoDB connection failed:', err.message);
+        console.error('❌ Server start failed:', err.message);
         process.exit(1);
     }
 };
