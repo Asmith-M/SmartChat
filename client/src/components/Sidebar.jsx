@@ -9,10 +9,16 @@ const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const { darkMode, setDarkMode } = useContext(ThemeContext);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    toast.success('Logged out successfully!');
-    navigate('/login');
+  const handleResetChat = () => {
+    // Clear chat-related localStorage
+    localStorage.removeItem('smartchat_history');
+    localStorage.removeItem('smartchat_mode');
+    localStorage.removeItem('smartchat_session');
+    toast.success('Chat history reset successfully!');
+    // Navigate to home to reload the chat
+    navigate('/');
+    // Force page reload to reset all state
+    window.location.reload();
   };
 
   const username = JSON.parse(localStorage.getItem('user'))?.username;
@@ -63,9 +69,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           <span className="username">{username || 'Guest'}</span>
         </div>
 
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="logout-btn" onClick={handleResetChat}>
           <LogoutIcon />
-          <span>Logout</span>
+          <span>Reset Chat</span>
         </button>
       </div>
     </div>

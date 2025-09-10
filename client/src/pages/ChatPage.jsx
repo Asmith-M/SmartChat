@@ -18,13 +18,15 @@ const ChatPage = () => {
     Math.random().toString(36).substring(2) + Date.now().toString(36)
   );
 
-  // On mount: Load history, mode, and session ID
+  // On mount: Clear previous chat and session to start fresh on app load
   useEffect(() => {
-    const savedHistory = JSON.parse(localStorage.getItem('smartchat_history')) || [];
-    const savedMode = localStorage.getItem('smartchat_mode') || 'formal';
-    const savedSessionId = localStorage.getItem('smartchat_session');
+    // Clear previous chat history and sessionId from localStorage
+    localStorage.removeItem('smartchat_history');
+    localStorage.removeItem('smartchat_session');
 
-    setChatHistory(savedHistory.length > 0 ? savedHistory : [{
+    const savedMode = localStorage.getItem('smartchat_mode') || 'formal';
+
+    setChatHistory([{
       sender: 'bot',
       text: savedMode === 'formal'
         ? 'Welcome to SmartChat! How can I assist you today?'
@@ -32,7 +34,7 @@ const ChatPage = () => {
     }]);
 
     setMode(savedMode);
-    setSessionId(savedSessionId || generateSessionId());
+    setSessionId(generateSessionId());
   }, []);
 
   // Sync chatHistory to localStorage
