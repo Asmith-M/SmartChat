@@ -1,3 +1,13 @@
+/**
+ * =================================================================
+ * | Main Server File (server.js)                                  |
+ * =================================================================
+ * | Initializes the Express application, sets up middleware,      |
+ * | connects to the database, and starts the server.              |
+ * =================================================================
+ */
+
+// Core Node Modules & Libraries
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -5,62 +15,73 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
-import authRoutes from './routes/authRoutes.js';
 import botRoutes from './routes/botRoutes.js';
-// import userRoutes from './routes/userRoutes.js'; 
-
+import authRoutes from './routes/authRoutes.js';
 import authMiddleware from './middleware/authMiddleware.js';
 import cspMiddleware from './middleware/cspmiddleware.js';
 import { authRateLimiter } from './middleware/ratelimiter.js';
 
+// --- Application Setup ---
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(helmet({ contentSecurityPolicy: false }));
+// ✅ Security Middlewares (order matters)
+app.use(helmet({ contentSecurityPolicy: false })); // We'll define custom CSP
 app.use(cspMiddleware);
 app.use(authRateLimiter);
 
-const corsOptions = {
+// ✅ Core Middlewares
+app.use(cors({
+    origin: 'https://smartchat-seven.vercel.app', // Allow only this origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204
+}));
+
+// Add explicit OPTIONS preflight handler for all routes
+app.options('*', cors({
     origin: 'https://smartchat-seven.vercel.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+}));
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan('dev')); // Logging
 
+// ✅ Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', authMiddleware); // Protect /user routes
+app.use('/api/bot', botRoutes); // Bot API
+
+// ✅ Health Route
 app.get('/', (req, res) => {
     res.send('SmartChat API is running and healthy.');
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/bot', botRoutes);
+// ✅ MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log('✅ MongoDB connected');
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+})
+.catch((err) => {
+  console.error('❌ MongoDB connection failed:', err.message);
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} without DB`));
+});
 
-// app.use('/api/user', authMiddleware, userRoutes);
-
+// ✅ 404 Handler
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
 
+// ✅ Error Handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'An unexpected server error occurred.', message: err.message });
 });
-
-const startServer = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('✅ MongoDB connected successfully.');
-        app.listen(PORT, () => console.log(`🚀 Server is listening on port ${PORT}`));
-    } catch (err) {
-        console.error('❌ MongoDB connection failed:', err.message);
-        process.exit(1);
-    }
-};
-
-startServer();
 
 export default app;
