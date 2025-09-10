@@ -18,6 +18,7 @@ dotenv.config();
 const router = express.Router();
 
 const HF_TOKEN = process.env.HUGGING_FACE_API_KEY || "HUGGING_FACE_API_KEY";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "OPENROUTER_API_KEY";
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Store conversation history for better context
@@ -322,102 +323,91 @@ router.post('/chat', async (req, res) => {
         response = personality === 'sassy'
           ? generateSassyResponse(knowledgeBaseResponse, extractTopic(normalizedMessage))
           : generateFormalResponse(knowledgeBaseResponse, extractTopic(normalizedMessage));
-      } else {
-        // If we don't have a local response, try the AI model
-        try {
-          // Extract conversation context
-          const conversationContext = history.map(item =>
-            `User: ${item.user}\nAssistant: ${item.bot}`
-          ).join('\n\n');
+    } else {
+      // If we don't have a local response, try the AI model
+      try {
+        // Extract conversation context
+        const conversationContext = history.map(item =>
+          `User: ${item.user}\nAssistant: ${item.bot}`
+        ).join('\n\n');
 
-          // Generate a topic-appropriate prompt enhancer if topic is detected
-          const topic = extractTopic(normalizedMessage);
-          const promptType = topic
-            ? (["programming", "science", "math"].includes(topic) ? "technical" :
-                ["movies", "history"].includes(topic) ? "educational" : "conversational")
-            : "conversational";
+        // Generate a topic-appropriate prompt enhancer if topic is detected
+        const topic = extractTopic(normalizedMessage);
+        const promptType = topic
+          ? (["programming", "science", "math"].includes(topic) ? "technical" :
+              ["movies", "history"].includes(topic) ? "educational" : "conversational")
+          : "conversational";
 
-          const promptEnhancer = getRandomElement(enhancedPrompts[promptType]);
+        const promptEnhancer = getRandomElement(enhancedPrompts[promptType]);
 
-          // Build the AI prompt with history and personality
-          let prompt = "";
+        // Build the AI prompt with history and personality
+        let prompt = "";
 
-          if (conversationContext) {
-            prompt += `Previous conversation:\n${conversationContext}\n\n`;
-          }
-
-          // Add personality instructions
-          if (personality === 'sassy') {
-            prompt += `You are a sassy, somewhat edgy AI assistant with attitude. You use Gen Z slang, emojis, and have a confident, slightly arrogant tone. Keep responses concise but with personality.\n\n`;
-          } else {
-            prompt += `You are a helpful, professional AI assistant. Your tone is formal but friendly. Provide clear, accurate information in a respectful manner.\n\n`;
-          }
-
-          // Add the user's message with context
-          prompt += `User: <span class="math-inline">\{normalizedMessage\}\\n\\n</span>{promptEnhancer}`;
-
-          // Send request to Hugging Face hosted endpoint
-          const aiResponse = await fetch(
-            "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
-            {
-              headers: {
-                Authorization: `Bearer ${HF_TOKEN}`,
-                "Content-Type": "application/json"
-              },
-              method: "POST",
-              body: JSON.stringify({
-                inputs: prompt,
-                parameters: {
-                  max_new_tokens: 250,
-                  temperature: personality === 'sassy' ? 0.9 : 0.7,
-                  top_p: 0.9,
-                  do_sample: true
-                }
-              })
-            }
-          );
-
-          // Handle potential API errors
-          if (!aiResponse.ok) {
-            const errorData = await aiResponse.json();
-
-            // Check if model is loading
-            if (errorData.error && errorData.error.includes("Loading")) {
-              // Wait a moment and retry once
-              await wait(5000);
-
-              // Fallback to default response if we're still loading
-              throw new Error("Model is still loading");
-            } else {
-              throw new Error(`API Error: ${errorData.error || aiResponse.statusText}`);
-            }
-          }
-
-          const result = await aiResponse.json();
-
-          // Extract the generated text
-          let aiText = result[0]?.generated_text || "";
-
-          // Clean up the response - remove any prefixes like "Assistant:"
-          aiText = aiText.replace(/^(Assistant:|Bot:|AI:)\s*/i, "");
-
-          // Format based on personality
-          response = personality === 'sassy'
-            ? generateSassyResponse(aiText, topic)
-            : aiText;
-
-          responseSource = 'ai';
-        } catch (error) {
-          console.error("AI API error:", error.message);
-
-          // Fallback to default responses if AI fails
-          response = personality === 'sassy'
-            ? getRandomElement(fallbackResponses.sassy.unknown)
-            : getRandomElement(fallbackResponses.formal.unknown);
-
-          responseSource = 'fallback';
+        if (conversationContext) {
+          prompt += `Previous conversation:\n${conversationContext}\n\n`;
         }
+
+        // Add personality instructions
+        if (personality === 'sassy') {
+          prompt += `You are a sassy, somewhat edgy AI assistant with attitude. You use Gen Z slang, emojis, and have a confident, slightly arrogant tone. Keep responses concise but with personality.\n\n`;
+        } else {
+          prompt += `You are a helpful, professional AI assistant. Your tone is formal but friendly. Provide clear, accurate information in a respectful manner.\n\n`;
+        }
+
+        // Add the user's message with context
+        prompt += `User: ${normalizedMessage}\n\n${promptEnhancer}`;
+
+        // Send request to OpenRouter API
+        const aiResponse = await fetch(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            headers: {
+              Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+              "Content-Type": "application/json"
+            },
+            method: "POST",
+            body: JSON.stringify({
+              model: "mistralai/mistral-7b-instruct",
+              messages: [{ role: "user", content: prompt }],
+              max_tokens: 250,
+              temperature: personality === 'sassy' ? 0.9 : 0.7,
+              top_p: 0.9
+            })
+          }
+        );
+
+        // Handle potential API errors
+        if (!aiResponse.ok) {
+          const errorData = await aiResponse.json();
+          console.error("OpenRouter API Error Data:", errorData);
+          throw new Error(`API Error: ${errorData.error?.message || aiResponse.statusText}`);
+        }
+
+        const result = await aiResponse.json();
+
+        // Extract the generated text
+        let aiText = result.choices[0]?.message?.content || "";
+
+        // Clean up the response - remove any prefixes like "Assistant:"
+        aiText = aiText.replace(/^(Assistant:|Bot:|AI:)\s*/i, "");
+
+        // Format based on personality
+        response = personality === 'sassy'
+          ? generateSassyResponse(aiText, topic)
+          : aiText;
+
+        responseSource = 'ai';
+      } catch (error) {
+        console.error("AI API error:", error.message);
+
+        // Fallback to default responses if AI fails
+        response = personality === 'sassy'
+          ? getRandomElement(fallbackResponses.sassy.unknown)
+          : getRandomElement(fallbackResponses.formal.unknown);
+
+        responseSource = 'fallback';
       }
+    }
     }
 
     // Update conversation history
